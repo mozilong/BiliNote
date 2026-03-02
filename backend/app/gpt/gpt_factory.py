@@ -1,5 +1,4 @@
 from openai import OpenAI
-
 from app.gpt.base import GPT
 from app.gpt.provider.OpenAI_compatible_provider import OpenAICompatibleProvider
 from app.gpt.universal_gpt import UniversalGPT

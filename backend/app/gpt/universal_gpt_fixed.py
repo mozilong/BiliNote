@@ -21,7 +21,7 @@ class UniversalGPT(GPT):
 
     def _build_segment_text(self, segments: List[TranscriptSegment]) -> str:
         return "\n".join(
-            f"{self._format_time(seg.start)} - {(seg.text or '').strip()}"
+           f"{self._format_time(seg.start)} - {(seg.text or '').strip()}"
             for seg in segments
         )
 

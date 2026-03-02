@@ -597,9 +597,7 @@ class NoteGenerator:
             try:
                 img_path = generate_screenshot(str(video_path), str(IMAGE_OUTPUT_DIR), ts, idx)
                 filename = Path(img_path).name
-                # 构建前端可访问的 URL，例如 /static/screenshots/{filename}
-                img_url = f"{IMAGE_BASE_URL.rstrip('/')}/{filename}"
-                markdown = markdown.replace(marker, f"![]({img_url})", 1)
+                markdown = markdown.replace(marker, f"![]({filename})", 1)
             except Exception as exc:
                 logger.error(f"生成截图失败 (timestamp={ts})：{exc}")
                 # self._handle_exception(task_id, exc)

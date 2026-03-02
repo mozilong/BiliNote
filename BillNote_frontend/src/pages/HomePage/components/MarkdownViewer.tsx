@@ -142,6 +142,57 @@ const MarkdownViewer: FC<MarkdownViewerProps> = ({ status }) => {
     document.body.removeChild(link)
   }
 
+  const handleDownloadImages = async () => {
+    const imgRegex = /!\[.*?\]\(([^)]+)\)/g
+    const urls: string[] = []
+    let match
+    while ((match = imgRegex.exec(selectedContent)) !== null) {
+      let url = match[1]
+      if (url.startsWith('/')) {
+        url = baseURL + url
+      } else if (!url.startsWith('http')) {
+        url = `${baseURL}/static/screenshots/${url}`
+      }
+      urls.push(url)
+    }
+
+    if (urls.length === 0) {
+      toast.error('当前笔记中没有图片')
+      return
+    }
+
+    const toastId = toast.loading(`正在打包 ${urls.length} 张图片…`)
+
+    try {
+      const JSZip = (await import('jszip')).default
+      const zip = new JSZip()
+      const folder = zip.folder('images')!
+
+      await Promise.all(
+        urls.map(async (url, i) => {
+          const resp = await fetch(url)
+          if (!resp.ok) throw new Error(`图片下载失败: ${url}`)
+          const blob = await resp.blob()
+          const filename = url.split('/').pop()?.split('?')[0] || `image_${i + 1}.jpg`
+          folder.file(filename, blob)
+        })
+      )
+
+      const task = getCurrentTask()
+      const name = task?.audioMeta?.title || 'images'
+      const zipBlob = await zip.generateAsync({ type: 'blob' })
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(zipBlob)
+      link.download = `${name}_images.zip`
+      link.click()
+      URL.revokeObjectURL(link.href)
+
+      toast.success(`已下载 ${urls.length} 张图片`, { id: toastId })
+    } catch (e) {
+      toast.error('图片打包失败，请重试', { id: toastId })
+    }
+  }
+
   if (status === 'loading') {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center space-y-4 text-neutral-500">
@@ -195,6 +246,7 @@ const MarkdownViewer: FC<MarkdownViewerProps> = ({ status }) => {
         noteStyles={noteStyles}
         onCopy={handleCopy}
         onDownload={handleDownload}
+        onDownloadImages={handleDownloadImages}
         createAt={createTime}
         showTranscribe={showTranscribe}
         setShowTranscribe={setShowTranscribe}
@@ -309,10 +361,11 @@ const MarkdownViewer: FC<MarkdownViewerProps> = ({ status }) => {
 
                       // Enhanced image with zoom capability
                       img: ({ node, ...props }) =>{
-                        // Fix the URL by removing the 'undefined' prefix if it exists
                         let src = props.src
                         if (src.startsWith('/')) {
                           src = baseURL + src
+                        } else if (!src.startsWith('http')) {
+                          src = `${baseURL}/static/screenshots/${src}`
                         }
                         props.src = src
 

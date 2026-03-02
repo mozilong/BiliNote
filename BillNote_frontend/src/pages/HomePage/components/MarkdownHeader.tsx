@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Copy, Download, BrainCircuit } from 'lucide-react'
+import { Copy, Download, BrainCircuit, ImageDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -26,6 +26,7 @@ interface NoteHeaderProps {
   noteStyles: { value: string; label: string }[]
   onCopy: () => void
   onDownload: () => void
+  onDownloadImages: () => void
   createAt?: string | Date
   setShowTranscribe: (show: boolean) => void
 }
@@ -40,6 +41,7 @@ export function MarkdownHeader({
   noteStyles,
   onCopy,
   onDownload,
+  onDownloadImages,
   createAt,
   showTranscribe,
   setShowTranscribe,
@@ -163,6 +165,17 @@ export function MarkdownHeader({
               </Button>
             </TooltipTrigger>
             <TooltipContent>下载为 Markdown 文件</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={onDownloadImages} variant="ghost" size="sm" className="h-8 px-2">
+                <ImageDown className="mr-1.5 h-4 w-4" />
+                <span className="text-sm">下载图片</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>将笔记中所有图片打包下载</TooltipContent>
           </Tooltip>
         </TooltipProvider>
         <TooltipProvider>
