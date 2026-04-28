@@ -5,10 +5,12 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd() + '/../')
+  // 先从本地 .env 加载，再回退到父目录的 .env
+  const localEnv = loadEnv(mode, process.cwd(), '')
+  const parentEnv = loadEnv(mode, process.cwd() + '/../', '')
 
-  const apiBaseUrl = env.VITE_API_BASE_URL || 'http://localhost:8000'
-  const port = parseInt(env.VITE_FRONTEND_PORT || '3015', 10)
+  const apiBaseUrl = localEnv.VITE_API_BASE_URL || parentEnv.VITE_API_BASE_URL || 'http://localhost:8000'
+  const port = parseInt(localEnv.VITE_FRONTEND_PORT || parentEnv.VITE_FRONTEND_PORT || '3015', 10)
 
   return {
     base: './',
@@ -26,12 +28,13 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: apiBaseUrl,
           changeOrigin: true,
-          rewrite: path => path.replace(/^\/api/, '/api'),
+          ws: true,
+          secure: false,
         },
         '/static': {
           target: apiBaseUrl,
           changeOrigin: true,
-          rewrite: path => path.replace(/^\/static/, '/static'),
+          secure: false,
         },
       },
     },

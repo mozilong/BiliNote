@@ -1,10 +1,15 @@
 import logging
+import os
 import sys
 from pathlib import Path
 
-# 日志目录
-LOG_DIR = Path("logs")
-LOG_DIR.mkdir(exist_ok=True)
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# 日志目录 - 通过环境变量 LOG_DIR 配置
+LOG_DIR = Path(os.getenv("LOG_DIR", "logs"))
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 # 日志格式
 formatter = logging.Formatter(

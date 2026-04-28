@@ -64,7 +64,7 @@ class VideoRequest(BaseModel):
 
 
 NOTE_OUTPUT_DIR = os.getenv("NOTE_OUTPUT_DIR", "note_results")
-UPLOAD_DIR = "uploads"
+UPLOAD_DIR = os.getenv("UPLOADS_DIR", "uploads")
 
 
 def save_note_to_file(task_id: str, note):

@@ -49,11 +49,10 @@ def save_cover_to_static(local_cover_path: str, subfolder: Optional[str] = "cove
     :param subfolder: 子目录，默认是 cover，可以自定义
     :return: 前端访问路径，例如 /static/cover/xxx.jpg
     """
-    # 项目根目录
-    project_root = os.getcwd()
-
-    # static目录
-    static_dir = os.path.join(project_root, "static")
+    # 使用环境变量配置的 static 目录
+    static_dir = os.getenv('STATIC_DIR', 'static')
+    if not os.path.isabs(static_dir):
+        static_dir = os.path.join(os.getcwd(), static_dir)
 
     # 确定目标子目录
     target_dir = os.path.join(static_dir, subfolder or "cover")
@@ -62,8 +61,9 @@ def save_cover_to_static(local_cover_path: str, subfolder: Optional[str] = "cove
     # 拷贝文件
     file_name = os.path.basename(local_cover_path)
     target_path = os.path.join(target_dir, file_name)
-    shutil.copy2(local_cover_path, target_path)  # 保留原时间戳、权限
-    image_relative_path = f"/static/{subfolder}/{file_name}".replace("\\", "/")
+    shutil.copy2(local_cover_path, target_path)
+
+    static_url_path = os.getenv('STATIC', '/static')
+    image_relative_path = f"{static_url_path}/{subfolder}/{file_name}".replace("\\", "/")
     url_path = f"{BACKEND_BASE_URL.rstrip('/')}/{image_relative_path.lstrip('/')}"
-    # 返回前端可访问的路径
     return url_path
